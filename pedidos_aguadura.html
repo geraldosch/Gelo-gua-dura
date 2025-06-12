@@ -1,0 +1,1815 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Cargas - Água Dura</title>
+    <!-- Font Awesome para ícones confiáveis -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&display=swap" rel="stylesheet">
+    <!-- Chart.js para o gráfico -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .snow-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .snowflake {
+            position: absolute;
+            color: #7c3aed;
+            user-select: none;
+            pointer-events: none;
+            animation: fall linear infinite;
+            font-weight: bold;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(300px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .header-icons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .header-icons i {
+            font-size: 3rem;
+            color: #7c3aed;
+        }
+
+        .title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #000000;
+            margin-bottom: 0.5rem;
+        }
+
+        .company-name {
+            font-family: 'Comfortaa', cursive; /* Fonte adicionada */
+            font-size: 3rem;
+            font-weight: bold;
+            color: #7c3aed;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 0.875rem;
+            color: #8b5cf6;
+            margin-bottom: 1rem;
+        }
+
+        .info-box {
+            background: #f3e8ff;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            margin: 0 auto;
+            max-width: 300px;
+        }
+
+        .info-text {
+            font-size: 0.875rem;
+            color: #7c3aed;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-address {
+            font-size: 0.75rem;
+            color: #8b5cf6;
+        }
+
+        /* Estilo para as abas */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e9d5ff;
+            margin-bottom: 1.5rem;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            color: #8b5cf6;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab:hover {
+            color: #7c3aed;
+            background-color: #f9f5ff;
+        }
+
+        .tab.active {
+            color: #7c3aed;
+            border-bottom-color: #7c3aed;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 2px solid #e9d5ff;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title i {
+            color: #7c3aed;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .label i {
+            color: #7c3aed;
+            width: 16px;
+            text-align: center;
+        }
+
+        .input, .select, .textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .input:focus, .select:focus, .textarea:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .input-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .input-row .input, .input-row .select {
+            flex-grow: 1;
+        }
+
+        .toggle-button {
+            background: #f3e8ff;
+            border: 1px solid #8b5cf6;
+            color: #7c3aed;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            flex-shrink: 0; /* Prevent shrinking */
+            white-space: nowrap; /* Prevent text wrapping */
+        }
+
+        .toggle-button:hover {
+            background: #e9d5ff;
+        }
+
+        .toggle-button.active {
+            background: #7c3aed;
+            color: white;
+        }
+
+        .delete-button {
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: #dc2626;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .delete-button:hover {
+            background: #fecaca;
+        }
+
+        .saved-indicator {
+            font-size: 0.75rem;
+            color: #0891b2;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #7c3aed;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #6d28d9;
+        }
+
+        .btn-success {
+            background: #059669;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #047857;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .cart-section {
+            margin-top: 2rem;
+        }
+
+        .cart-empty {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+
+        .cart-empty i {
+            font-size: 3rem;
+            opacity: 0.5;
+            margin-bottom: 1rem;
+        }
+
+        .cart-items {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .cart-item {
+            background: #f9fafb;
+            border-left: 4px solid #7c3aed;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .cart-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .truck-badge {
+            background: #ddd6fe;
+            color: #7c3aed;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .remove-btn {
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .remove-btn:hover {
+            background: #fecaca;
+        }
+
+        .cart-item-info {
+            font-size: 0.875rem;
+            color: #374151;
+            margin: 0.25rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .cart-item-info i {
+            color: #7c3aed;
+            width: 16px;
+            text-align: center;
+        }
+
+        .weight-info {
+            background: #e0f2fe;
+            border: 1px solid #0891b2;
+            border-radius: 0.375rem;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            font-weight: 600;
+            color: #0c4a6e;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .cart-counter {
+            background: #7c3aed;
+            color: white;
+            border-radius: 50%;
+            width: 1.5rem;
+            height: 1.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 0.5rem;
+        }
+
+        /* Estilos para a aba de histórico */
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin-bottom: 2rem;
+        }
+
+        .history-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .history-filter {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .history-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: #f3e8ff;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #7c3aed;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        /* Estilo para o botão de zerar histórico */
+        .history-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-reset-history {
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: #dc2626;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-reset-history:hover {
+            background: #fecaca;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 4xl;
+            }
+            
+            .main-content {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 2rem;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .header-icons i {
+                font-size: 4rem;
+            }
+        }
+    
+body.dark-mode {
+    background: #111827;
+    color: #f3f4f6;
+}
+
+body.dark-mode .card {
+    background: #1f2937;
+    box-shadow: 0 10px 25px rgba(255,255,255,0.05);
+}
+
+body.dark-mode .input,
+body.dark-mode .select,
+body.dark-mode .textarea {
+    background: #374151;
+    color: #f9fafb;
+    border-color: #4b5563;
+}
+
+body.dark-mode .section-title,
+body.dark-mode .label {
+    color: #e5e7eb;
+}
+
+body.dark-mode .tab,
+body.dark-mode .tab.active {
+    color: #f9fafb;
+    border-color: #7c3aed;
+}
+
+body.dark-mode .btn-primary {
+    background: #a78bfa;
+    color: #1f2937;
+}
+
+body.dark-mode .btn-success {
+    background: #34d399;
+    color: #1f2937;
+}
+
+body.dark-mode .toggle-button {
+    background: #4b5563;
+    color: #f3f4f6;
+    border-color: #6b7280;
+}
+
+body.dark-mode .toggle-button.active {
+    background: #7c3aed;
+    color: white;
+}
+
+body.dark-mode .snowflake {
+    color: #d8b4fe;
+}
+
+</style>
+</head>
+<body>
+
+<button id="darkModeToggle" class="toggle-button" style="position: fixed; top: 1rem; right: 1rem; z-index: 9999;">
+    <i class="fas fa-moon"></i>
+</button>
+
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <div class="snow-container" id="snowContainer"></div>
+                <div class="header-content">
+                    <div class="title">Sistema de Cargas Gelo</div>
+                    <div class="company-name">água dura</div>
+                    <div class="subtitle"> </div>
+                </div>
+                <div class="info-box" style="display: none;">
+                    <div class="info-text"><i class="fas fa-building"></i> <strong>Água Dura Blumenau</strong></div>
+                </div>
+            </div>
+
+            <!-- Abas de navegação -->
+            <div class="tabs">
+                <div class="tab active" data-tab="cargas">
+                    <i class="fas fa-clipboard-list"></i>
+                    Cargas
+                </div>
+                <div class="tab" data-tab="historico">
+                    <i class="fas fa-chart-line"></i>
+                    Histórico
+                </div>
+            </div>
+
+            <!-- Conteúdo da aba Cargas -->
+            <div class="tab-content active" id="cargas-content">
+                <div class="main-content">
+                    <!-- Formulário -->
+                    <div class="form-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-clipboard-list"></i>
+                            Nova Carga
+                        </h2>
+
+                        <!-- CAMINHÃO -->
+                        <div class="form-group">
+                            <label class="label">
+                                <i class="fas fa-truck"></i>
+                                Caminhão
+                            </label>
+                            <div class="input-container">
+                                <div class="input-row">
+                                    <select id="truckSelect" class="select" style="display: none;">
+                                        <option value="">Selecione um caminhão...</option>
+                                    </select>
+                                    <input type="text" id="truckInput" class="input" placeholder="Digite o modelo do caminhão" style="display: block;">
+                                    <button type="button" id="deleteTruckBtn" class="delete-button" style="display: none;">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                                <button type="button" id="newTruckToggle" class="toggle-button" style="display: none;">
+                                    <i class="fas fa-plus"></i>
+                                    Novo caminhão
+                                </button>
+                                <div id="truckSavedIndicator" class="saved-indicator" style="display: none;">
+                                    <i class="fas fa-check-circle"></i>
+                                    Caminhão salvo automaticamente
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- MOTORISTA -->
+                        <div class="form-group">
+                            <label class="label">
+                                <i class="fas fa-user"></i>
+                                Motorista
+                            </label>
+                            <div class="input-container">
+                                <div class="input-row">
+                                    <select id="driverSelect" class="select" style="display: none;">
+                                        <option value="">Selecione um motorista...</option>
+                                    </select>
+                                    <input type="text" id="driverInput" class="input" placeholder="Digite o nome do motorista" style="display: block;">
+                                    <button type="button" id="deleteDriverBtn" class="delete-button" style="display: none;">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                                <button type="button" id="newDriverToggle" class="toggle-button" style="display: none;">
+                                    <i class="fas fa-plus"></i>
+                                    Novo motorista
+                                </button>
+                                <div id="driverSavedIndicator" class="saved-indicator" style="display: none;">
+                                    <i class="fas fa-check-circle"></i>
+                                    Motorista salvo automaticamente
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label">
+                                <i class="fas fa-box"></i>
+                                Pacotes de 3kg:
+                            </label>
+                            <input type="number" id="package3kg" class="input" placeholder="Quantidade de pacotes de 3kg" min="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label">
+                                <i class="fas fa-cubes"></i>
+                                Pacotes de 10kg Triturado:
+                            </label>
+                            <input type="number" id="package10kg" class="input" placeholder="Quantidade de pacotes de 10kg triturado" min="0">
+                        </div>
+
+                        
+<div class="form-group">
+    <label class="label">
+        <i class="fas fa-calendar-day"></i>
+        Data da Coleta
+    </label>
+    <input type="date" id="collectionDate" class="input" required>
+</div>
+
+<div class="form-group">
+                            <label class="label">
+                                <i class="fas fa-clock"></i>
+                                Horário da Coleta (Opcional)
+                            </label>
+                            <input type="time" id="collectionTime" class="input">
+                            
+                            <!-- ROTAS -->
+                            <div class="form-group">
+                                <label class="label">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    Rota
+                                </label>
+                                <div class="input-container">
+                                    <div class="input-row">
+                                        <select id="routeSelect" class="select" style="display: none;">
+                                            <option value="">Selecione uma rota...</option>
+                                        </select>
+                                        <input type="text" id="routeInput" class="input" placeholder="Digite o nome da rota" style="display: block;">
+                                        <button type="button" id="deleteRouteBtn" class="delete-button" style="display: none;">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                    <button type="button" id="newRouteToggle" class="toggle-button" style="display: none;">
+                                        <i class="fas fa-plus"></i>
+                                        Nova rota
+                                    </button>
+                                    <div id="routeSavedIndicator" class="saved-indicator" style="display: none;">
+                                        <i class="fas fa-check-circle"></i>
+                                        Rota salva automaticamente
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label">
+                                <i class="fas fa-sticky-note"></i>
+                                Observações (Opcional)
+                            </label>
+                            <textarea id="observations" class="textarea" placeholder="Digite aqui informações adicionais sobre o carga, endereço, instruções especiais, etc."></textarea>
+                        </div>
+
+                        <button class="btn btn-primary" onclick="addToCart()">
+                            <i class="fas fa-cart-plus"></i>
+                            Adicionar ao Carrinho
+                        </button>
+                    </div>
+
+                    <!-- Carrinho -->
+                    <div class="cart-section">
+                        <h2 class="section-title">
+                            <i class="fas fa-shopping-cart"></i>
+                            Carrinho 
+                            <span class="cart-counter" id="cartCounter">0</span>
+                        </h2>
+
+                        <div id="cartEmpty" class="cart-empty">
+                            <i class="fas fa-shopping-cart"></i>
+                            <p>Carrinho vazio</p>
+                            <p style="font-size: 0.875rem;">Adicione itens para começar</p>
+                        </div>
+
+                        <div id="cartItems" class="cart-items" style="display: none;"></div>
+
+                        <button id="whatsappBtn" class="btn btn-success" onclick="sendToWhatsApp()" style="display: none; margin-top: 1rem;">
+                            <i class="fab fa-whatsapp"></i>
+                            Enviar para WhatsApp
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conteúdo da aba Histórico -->
+            <div class="tab-content" id="historico-content">
+                <h2 class="section-title">
+                    <i class="fas fa-chart-line"></i>
+                    Histórico de Entregas
+                </h2>
+
+                <!-- Filtros -->
+                <div class="history-filters">
+                    <div class="history-filter">
+                        <label class="label">
+                            <i class="fas fa-calendar"></i>
+                            Período
+                        </label>
+                        <select id="periodFilter" class="select">
+                            <option value="30">Último mês</option>
+                            <option value="7">Última semana</option>
+                            <option value="90">Últimos 3 meses</option>
+                            <option value="180">Últimos 6 meses</option>
+                        </select>
+                    </div>
+                    <div class="history-filter">
+                        <label class="label">
+                            <i class="fas fa-truck"></i>
+                            Caminhão
+                        </label>
+                        <select id="truckFilter" class="select">
+                            <option value="todos">Todos os caminhões</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Botão de zerar histórico -->
+                <div class="history-actions">
+    <button id="shareHistoryBtn" class="btn btn-success" style="margin-left: 0.5rem;">
+        <i class="fab fa-whatsapp"></i>
+        Compartilhar Histórico
+    </button>
+                    <button id="resetHistoryBtn" class="btn-reset-history">
+                        <i class="fas fa-trash-alt"></i>
+                        Zerar Histórico
+                    </button>
+                </div>
+
+                <!-- Estatísticas -->
+                <div class="history-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalKilos">0</div>
+                        <div class="stat-label">Total de Quilos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalTrucks">0</div>
+                        <div class="stat-label">Total de Caminhões</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="avgKilosPerDay">0</div>
+                        <div class="stat-label">Média de Kg/Dia</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="avgTrucksPerDay">0</div>
+                        <div class="stat-label">Média de Caminhões/Dia</div>
+                    </div>
+                </div>
+
+                <!-- Gráfico -->
+                <div class="chart-container">
+                    <canvas id="historyChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let cart = [];
+        let savedDrivers = {};
+        let savedTrucks = {};
+        let savedRoutes = {};
+        let isNewDriverMode = true; // Start in new mode if no saved drivers
+        let isNewTruckMode = true; // Start in new mode if no saved trucks
+        let isNewRouteMode = true; // Start in new mode if no saved routes
+        const localStorageKeyDrivers = 'aguaDuraDrivers';
+        const localStorageKeyTrucks = 'aguaDuraTrucks';
+        const localStorageKeyRoutes = 'aguaDuraRoutes';
+        const localStorageKeyHistory = 'aguaDuraHistory';
+
+        // --- Generic Functions for Saved Items (Drivers/Trucks) ---
+
+        function loadSavedItems(key, savedItemsContainer, updateSelectFunction) {
+            try {
+                const savedData = JSON.parse(localStorage.getItem(key)) || {};
+                Object.assign(savedItemsContainer, savedData);
+                updateSelectFunction();
+            } catch (error) {
+                console.log(`Erro ao carregar dados salvos (${key}):`, error);
+                Object.keys(savedItemsContainer).forEach(key => delete savedItemsContainer[key]); // Clear container on error
+            }
+        }
+
+        function updateSelect(selectElement, inputElement, toggleButton, deleteButton, savedItems, isNewMode, updateNewModeFlag) {
+            const itemNames = Object.keys(savedItems).sort();
+            
+            // Clear options, keep placeholder
+            selectElement.innerHTML = `<option value="">Selecione um item...</option>`; // Generic placeholder
+            
+            itemNames.forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                selectElement.appendChild(option);
+            });
+
+            if (itemNames.length > 0) {
+                if (isNewMode) {
+                    // Stay in new mode if user explicitly toggled it
+                    selectElement.style.display = 'none';
+                    inputElement.style.display = 'block';
+                    toggleButton.style.display = 'flex';
+                    toggleButton.innerHTML = '<i class="fas fa-list"></i> Selecionar existente';
+                    toggleButton.classList.add('active');
+                    deleteButton.style.display = 'none';
+                } else {
+                    // Default to select mode if there are saved items
+                    selectElement.style.display = 'block';
+                    inputElement.style.display = 'none';
+                    toggleButton.style.display = 'flex';
+                    toggleButton.innerHTML = '<i class="fas fa-plus"></i> Novo item'; // Generic text
+                    toggleButton.classList.remove('active');
+                    updateNewModeFlag(false); // Update state variable
+                    // Show delete button only if a valid item is selected
+                    deleteButton.style.display = selectElement.value ? 'flex' : 'none'; 
+                }
+            } else {
+                // Force new mode if no items saved
+                selectElement.style.display = 'none';
+                inputElement.style.display = 'block';
+                toggleButton.style.display = 'none';
+                deleteButton.style.display = 'none';
+                updateNewModeFlag(true); // Update state variable
+            }
+        }
+
+        function saveItem(itemName, key, savedItemsContainer, updateSelectFunction, showSavedIndicatorFunction) {
+            const trimmedName = itemName.trim();
+            if (trimmedName && !savedItemsContainer[trimmedName]) { // Only save if new and not empty
+                try {
+                    savedItemsContainer[trimmedName] = {
+                        name: trimmedName,
+                        lastUsed: new Date().toISOString()
+                    };
+                    localStorage.setItem(key, JSON.stringify(savedItemsContainer));
+                    updateSelectFunction();
+                    showSavedIndicatorFunction();
+                    return true; // Indicate that save happened
+                } catch (error) {
+                    console.log(`Erro ao salvar item (${key}):`, error);
+                }
+            }
+            return false; // Indicate no save happened
+        }
+
+        function deleteItem(itemName, key, savedItemsContainer, updateSelectFunction, selectElement) {
+             if (itemName && savedItemsContainer[itemName]) {
+                if (confirm(`Tem certeza que deseja excluir "${itemName}"? Esta ação não pode ser desfeita.`)) {
+                    try {
+                        delete savedItemsContainer[itemName];
+                        localStorage.setItem(key, JSON.stringify(savedItemsContainer));
+                        updateSelectFunction();
+                        // Optionally reset selection
+                        selectElement.value = ''; 
+                    } catch (error) {
+                        console.log(`Erro ao excluir item (${key}):`, error);
+                    }
+                }
+            }
+        }
+
+        function showSavedIndicator(indicatorElement) {
+            indicatorElement.style.display = 'flex';
+            setTimeout(() => {
+                indicatorElement.style.display = 'none';
+            }, 3000);
+        }
+
+        function getCurrentItemName(isNewMode, inputElement, selectElement) {
+            if (isNewMode) {
+                return inputElement.value.trim();
+            } else {
+                return selectElement.value;
+            }
+        }
+
+        function setupToggle(toggleButton, selectElement, inputElement, deleteButton, updateNewModeFlag, isNewModeGetter) {
+            toggleButton.addEventListener('click', function() {
+                const currentIsNewMode = isNewModeGetter();
+                if (currentIsNewMode) {
+                    // Switch to select mode
+                    selectElement.style.display = 'block';
+                    inputElement.style.display = 'none';
+                    inputElement.value = '';
+                    toggleButton.innerHTML = '<i class="fas fa-plus"></i> Novo item'; // Generic text
+                    toggleButton.classList.remove('active');
+                    deleteButton.style.display = selectElement.value ? 'flex' : 'none'; // Show delete if item selected
+                    updateNewModeFlag(false);
+                } else {
+                    // Switch to new mode
+                    selectElement.style.display = 'none';
+                    inputElement.style.display = 'block';
+                    selectElement.value = '';
+                    toggleButton.innerHTML = '<i class="fas fa-list"></i> Selecionar existente';
+                    toggleButton.classList.add('active');
+                    deleteButton.style.display = 'none'; // Hide delete in new mode
+                    updateNewModeFlag(true);
+                    inputElement.focus();
+                }
+            });
+        }
+
+        function setupInputBlur(inputElement, saveFunction) {
+             inputElement.addEventListener('blur', function() {
+                const itemName = this.value.trim();
+                if (itemName) {
+                    saveFunction(itemName);
+                }
+            });
+        }
+
+        function setupSelectChange(selectElement, deleteButton) {
+            selectElement.addEventListener('change', function() {
+                // Show delete button only if a valid item (not the placeholder) is selected
+                deleteButton.style.display = this.value ? 'flex' : 'none';
+            });
+        }
+
+        function setupDeleteButton(deleteButton, selectElement, deleteFunction) {
+            deleteButton.addEventListener('click', function() {
+                const selectedItem = selectElement.value;
+                if (selectedItem) {
+                    deleteFunction(selectedItem);
+                }
+            });
+        }
+
+        // --- Truck Specific Setup ---
+        const truckSelect = document.getElementById('truckSelect');
+        const truckInput = document.getElementById('truckInput');
+        const newTruckToggle = document.getElementById('newTruckToggle');
+        const deleteTruckBtn = document.getElementById('deleteTruckBtn');
+        const truckSavedIndicator = document.getElementById('truckSavedIndicator');
+
+        function updateTruckSelectUI() {
+            updateSelect(truckSelect, truckInput, newTruckToggle, deleteTruckBtn, savedTrucks, isNewTruckMode, (flag) => isNewTruckMode = flag);
+            // Customize texts for truck
+            truckSelect.options[0].textContent = 'Selecione um caminhão...';
+            if (newTruckToggle.style.display !== 'none') {
+                 newTruckToggle.innerHTML = isNewTruckMode ? '<i class="fas fa-list"></i> Selecionar existente' : '<i class="fas fa-plus"></i> Novo caminhão';
+            }
+            
+            // Atualizar também o filtro de caminhões na aba de histórico
+            updateTruckFilterOptions();
+        }
+        
+        function updateTruckFilterOptions() {
+            const truckFilter = document.getElementById('truckFilter');
+            const currentValue = truckFilter.value;
+            
+            // Limpar opções, manter a opção "Todos"
+            truckFilter.innerHTML = '<option value="todos">Todos os caminhões</option>';
+            
+            // Adicionar caminhões salvos como opções
+            Object.keys(savedTrucks).sort().forEach(truck => {
+                const option = document.createElement('option');
+                option.value = truck;
+                option.textContent = truck;
+                truckFilter.appendChild(option);
+            });
+            
+            // Restaurar valor selecionado se possível
+            if (currentValue && (currentValue === 'todos' || savedTrucks[currentValue])) {
+                truckFilter.value = currentValue;
+            }
+        }
+        
+        function saveTruckNameUI(truckName) {
+            const saved = saveItem(truckName, localStorageKeyTrucks, savedTrucks, updateTruckSelectUI, () => showSavedIndicator(truckSavedIndicator));
+            // If saved successfully and was in new mode, switch back to select mode
+            if (saved && isNewTruckMode) {
+                 // Optionally switch back to select mode after saving
+                 // newTruckToggle.click(); // Simulate click to toggle back
+                 // Or just update the UI state directly
+                 isNewTruckMode = false;
+                 updateTruckSelectUI();
+                 // Set the newly added truck as selected
+                 truckSelect.value = truckName.trim();
+                 deleteTruckBtn.style.display = 'flex'; // Show delete button for the new truck
+            }
+        }
+        function deleteTruckNameUI(truckName) {
+            deleteItem(truckName, localStorageKeyTrucks, savedTrucks, updateTruckSelectUI, truckSelect);
+        }
+        function getCurrentTruckNameUI() {
+            return getCurrentItemName(isNewTruckMode, truckInput, truckSelect);
+        }
+
+        // --- Driver Specific Setup ---
+        const driverSelect = document.getElementById('driverSelect');
+        const driverInput = document.getElementById('driverInput');
+        const newDriverToggle = document.getElementById('newDriverToggle');
+        const deleteDriverBtn = document.getElementById('deleteDriverBtn');
+        const driverSavedIndicator = document.getElementById('driverSavedIndicator');
+
+        function updateDriverSelectUI() {
+            updateSelect(driverSelect, driverInput, newDriverToggle, deleteDriverBtn, savedDrivers, isNewDriverMode, (flag) => isNewDriverMode = flag);
+            // Customize texts for driver
+            driverSelect.options[0].textContent = 'Selecione um motorista...';
+             if (newDriverToggle.style.display !== 'none') {
+                 newDriverToggle.innerHTML = isNewDriverMode ? '<i class="fas fa-list"></i> Selecionar existente' : '<i class="fas fa-plus"></i> Novo motorista';
+             }
+        }
+        function saveDriverNameUI(driverName) {
+            const saved = saveItem(driverName, localStorageKeyDrivers, savedDrivers, updateDriverSelectUI, () => showSavedIndicator(driverSavedIndicator));
+             if (saved && isNewDriverMode) {
+                 isNewDriverMode = false;
+                 updateDriverSelectUI();
+                 driverSelect.value = driverName.trim();
+                 deleteDriverBtn.style.display = 'flex';
+             }
+        }
+        function deleteDriverNameUI(driverName) {
+            deleteItem(driverName, localStorageKeyDrivers, savedDrivers, updateDriverSelectUI, driverSelect);
+        }
+        function getCurrentDriverNameUI() {
+            return getCurrentItemName(isNewDriverMode, driverInput, driverSelect);
+        }
+
+        // --- Route Specific Setup ---
+        const routeSelect = document.getElementById('routeSelect');
+        const routeInput = document.getElementById('routeInput');
+        const newRouteToggle = document.getElementById('newRouteToggle');
+        const deleteRouteBtn = document.getElementById('deleteRouteBtn');
+        const routeSavedIndicator = document.getElementById('routeSavedIndicator');
+
+        function updateRouteSelectUI() {
+            updateSelect(routeSelect, routeInput, newRouteToggle, deleteRouteBtn, savedRoutes, isNewRouteMode, (flag) => isNewRouteMode = flag);
+            // Customize texts for route
+            routeSelect.options[0].textContent = 'Selecione uma rota...';
+            if (newRouteToggle.style.display !== 'none') {
+                newRouteToggle.innerHTML = isNewRouteMode ? '<i class="fas fa-list"></i> Selecionar existente' : '<i class="fas fa-plus"></i> Nova rota';
+            }
+        }
+        
+        function saveRouteNameUI(routeName) {
+            const saved = saveItem(routeName, localStorageKeyRoutes, savedRoutes, updateRouteSelectUI, () => showSavedIndicator(routeSavedIndicator));
+            if (saved && isNewRouteMode) {
+                isNewRouteMode = false;
+                updateRouteSelectUI();
+                routeSelect.value = routeName.trim();
+                deleteRouteBtn.style.display = 'flex';
+            }
+        }
+        
+        function deleteRouteNameUI(routeName) {
+            deleteItem(routeName, localStorageKeyRoutes, savedRoutes, updateRouteSelectUI, routeSelect);
+        }
+        
+        function getCurrentRouteNameUI() {
+            return getCurrentItemName(isNewRouteMode, routeInput, routeSelect);
+        }
+
+        // --- Cart Functions ---
+        function addToCart() {
+            const truck = getCurrentTruckNameUI();
+            const driver = getCurrentDriverNameUI();
+            const route = getCurrentRouteNameUI();
+            const package3kg = document.getElementById('package3kg').value || '0';
+            const package10kg = document.getElementById('package10kg').value || '0';
+            const collectionDate = document.getElementById('collectionDate').value;
+            if (!collectionDate) {
+                alert('Por favor, informe a data da coleta.');
+                return;
+            }
+            const collectionTime = document.getElementById('collectionTime').value;
+            const observations = document.getElementById('observations').value;
+            
+            if (!truck) {
+                alert('Por favor, informe o caminhão.');
+                return;
+            }
+            
+            if (!driver) {
+                alert('Por favor, informe o motorista.');
+                return;
+            }
+            
+            if (package3kg === '0' && package10kg === '0') {
+                alert('Por favor, informe a quantidade de pelo menos um tipo de pacote.');
+                return;
+            }
+            
+            // Calculate total weight
+            const weight3kg = parseInt(package3kg || 0) * 3.150;
+            const weight10kg = parseInt(package10kg || 0) * 10.150;
+            const totalWeight = weight3kg + weight10kg;
+            
+            // Save truck and driver if they are new
+            if (isNewTruckMode && truck) {
+                saveTruckNameUI(truck);
+            }
+            
+            if (isNewDriverMode && driver) {
+                saveDriverNameUI(driver);
+            }
+            
+            if (isNewRouteMode && route) {
+                saveRouteNameUI(route);
+            }
+            
+            // Add to cart
+            cart.push({
+                collectionDate,
+                truck,
+                driver,
+                route,
+                package3kg,
+                package10kg,
+                collectionTime,
+                observations,
+                totalWeight
+            });
+            
+            
+            // Update UI
+            updateCartDisplay();
+            
+            // Clear form
+            document.getElementById('package3kg').value = '';
+            document.getElementById('package10kg').value = '';
+            document.getElementById('collectionTime').value = '';
+            document.getElementById('observations').value = '';
+            
+            alert('Carga adicionado ao carrinho!');
+        }
+        
+        function saveToHistory(truck, totalWeight) {
+            try {
+                // Carregar histórico existente
+                let history = JSON.parse(localStorage.getItem(localStorageKeyHistory)) || [];
+                
+                // Adicionar novo registro
+                history.push({
+                    date: new Date().toISOString(),
+                    truck: truck,
+                    weight: totalWeight
+                });
+                
+                // Salvar histórico atualizado
+                localStorage.setItem(localStorageKeyHistory, JSON.stringify(history));
+                
+                // Atualizar gráfico se a aba de histórico estiver visível
+                if (document.getElementById('historico-content').classList.contains('active')) {
+                    updateHistoryChart();
+                }
+            } catch (error) {
+                console.error('Erro ao salvar no histórico:', error);
+            }
+        }
+        
+        function updateCartDisplay() {
+            const cartItems = document.getElementById('cartItems');
+            const cartEmpty = document.getElementById('cartEmpty');
+            const cartCounter = document.getElementById('cartCounter');
+            const whatsappBtn = document.getElementById('whatsappBtn');
+            
+            cartCounter.textContent = cart.length;
+            
+            if (cart.length === 0) {
+                cartItems.style.display = 'none';
+                cartEmpty.style.display = 'block';
+                whatsappBtn.style.display = 'none';
+                return;
+            }
+            
+            cartItems.style.display = 'block';
+            cartEmpty.style.display = 'none';
+            whatsappBtn.style.display = 'flex';
+            
+            cartItems.innerHTML = '';
+            
+            cart.forEach((item, index) => {
+                const cartItem = document.createElement('div');
+                cartItem.className = 'cart-item';
+                
+                cartItem.innerHTML = `
+                    ${item.collectionDate ? `<div class="cart-item-info"><i class="fas fa-calendar-day"></i>Data: ${item.collectionDate}</div>` : ''}
+                    <div class="cart-item-header">
+                        <div class="truck-badge">
+                            <i class="fas fa-truck"></i>
+                            ${item.truck}
+                        </div>
+                        <button class="remove-btn" onclick="removeFromCart(${index})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="cart-item-info">
+                        <i class="fas fa-user"></i>
+                        ${item.driver}
+                    </div>
+                    ${item.route ? `
+                    <div class="cart-item-info">
+                        <i class="fas fa-map-marker-alt"></i>
+                        ${item.route}
+                    </div>
+                    ` : ''}
+                    ${item.package3kg !== '0' ? `
+                    <div class="cart-item-info">
+                        <i class="fas fa-box"></i>
+                        ${item.package3kg} pacotes de 3kg
+                    </div>
+                    ` : ''}
+                    ${item.package10kg !== '0' ? `
+                    <div class="cart-item-info">
+                        <i class="fas fa-cubes"></i>
+                        ${item.package10kg} pacotes de 10kg triturado
+                    </div>
+                    ` : ''}
+                    ${item.collectionTime ? `
+                    <div class="cart-item-info">
+                        <i class="fas fa-clock"></i>
+                        Coleta às ${item.collectionTime}
+                    </div>
+                    ` : ''}
+                    ${item.observations ? `
+                    <div class="cart-item-info">
+                        <i class="fas fa-sticky-note"></i>
+                        ${item.observations}
+                    </div>
+                    ` : ''}
+                    <div class="weight-info">
+                        <i class="fas fa-weight-hanging"></i>
+                        Peso Total: ${Math.round(item.totalWeight)} kg
+                    </div>
+                `;
+                
+                cartItems.appendChild(cartItem);
+            });
+        }
+        
+        function removeFromCart(index) {
+            if (confirm('Tem certeza que deseja remover este item do carrinho?')) {
+                cart.splice(index, 1);
+                updateCartDisplay();
+            }
+        }
+        
+        function sendToWhatsApp() {
+            if (cart.length === 0) {
+                alert('Carrinho vazio! Adicione itens antes de enviar.');
+                return;
+            }
+
+            let message = ' *CARGA DE GELO ÁGUA DURA* \n\n';
+            let totalPesoGeral = 0;
+            
+            cart.forEach((item, index) => {
+                message += ` *> Carga ${index + 1}* \n`;
+                message += `Caminhão: ${item.truck}\n`;
+                message += `Motorista: ${item.driver}\n\n`;
+                if (item.route) {
+                    message += `Rota: ${item.route}\n`;
+                }
+                
+                if (item.package3kg !== '0') {
+                    message += `Pacotes 3kg: ${item.package3kg}\n`;
+                }
+                
+                if (item.package10kg !== '0') {
+                    message += `Pacotes 10kg triturado: ${item.package10kg}\n\n`;
+                }
+                
+                if (item.collectionDate) {
+                    message += `Data da coleta: ${item.collectionDate}\n`;
+                }
+                if (item.collectionTime) {
+                    message += `Horário da coleta: ${item.collectionTime}\n`;
+                }
+                
+                if (item.observations) {
+                    message += `Observacoes: ${item.observations}\n`;
+                }
+
+                message += `Peso Total: ${Math.round(item.totalWeight)} kg\n`;
+                totalPesoGeral += item.totalWeight;
+                
+                
+            saveToHistory(item.truck, item.totalWeight);message += '-----------------------------\n\n';
+            });
+
+            message += ``;
+            message += `Peso Total Geral: ${Math.round(totalPesoGeral)} kg\n\n`;
+           
+            // Enviar dados para o Google Sheets
+            sendToGoogleSheets(cart);
+            
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+            
+            window.open(whatsappUrl, '_blank');
+        }
+        
+        // Nova função para enviar dados para o Google Sheets
+        function sendToGoogleSheets(cartData) {
+            // URL do script web do Google Apps Script
+            // Esta URL está vinculada à planilha compartilhada pelo usuário
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbwfb7irG1d-SlCGedLAtYm0k3e_Bt-F7XnjZoRbe-_MVqgUSOjr3vbHYTSK5GfxGKgnKw/exec';
+            // Planilha: https://docs.google.com/spreadsheets/d/1e19bOCqUbWrErxVTes5FrOsbkv4sq26zjXi4DAOqCzg/edit?usp=sharing
+            
+            // Prepara os dados para envio
+            cartData.forEach(item => {
+                let formData = new FormData();
+                
+                // Adiciona data e hora atual
+                formData.append('timestamp', new Date().toISOString());
+                
+                // Adiciona dados do caminhão e motorista
+                formData.append('truck', item.truck);
+                formData.append('driver', item.driver);
+                
+                // Adiciona rota se existir
+                if (item.route) {
+                    formData.append('route', item.route);
+                }
+                
+                // Adiciona pacotes
+                formData.append('package3kg', item.package3kg || '0');
+                formData.append('package10kg', item.package10kg || '0');
+                
+                // Adiciona data e hora de coleta
+                if (item.collectionDate) {
+                    formData.append('collectionDate', item.collectionDate);
+                }
+                if (item.collectionTime) {
+                    formData.append('collectionTime', item.collectionTime);
+                }
+                
+                // Adiciona observações
+                if (item.observations) {
+                    formData.append('observations', item.observations);
+                }
+                
+                // Adiciona peso total
+                formData.append('totalWeight', Math.round(item.totalWeight));
+                
+                // Envia os dados para o Google Sheets
+                fetch(scriptURL, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    console.log('Dados enviados com sucesso para o Google Sheets!', response);
+                })
+                .catch(error => {
+                    console.error('Erro ao enviar dados para o Google Sheets:', error);
+                });
+            });
+        }
+
+        // --- Histórico Functions ---
+        let historyChart = null;
+        
+        function updateHistoryChart() {
+            const periodFilter = document.getElementById('periodFilter');
+            const truckFilter = document.getElementById('truckFilter');
+            const days = parseInt(periodFilter.value);
+            const selectedTruck = truckFilter.value;
+            
+            try {
+                // Carregar dados do histórico
+                let historyData = JSON.parse(localStorage.getItem(localStorageKeyHistory)) || [];
+                
+                // Filtrar por período
+                const today = new Date();
+                const startDate = new Date(today);
+                startDate.setDate(today.getDate() - days);
+                
+                historyData = historyData.filter(item => {
+                    const itemDate = new Date(item.date);
+                    return itemDate >= startDate;
+                });
+                
+                // Filtrar por caminhão se necessário
+                if (selectedTruck !== 'todos') {
+                    historyData = historyData.filter(item => item.truck === selectedTruck);
+                }
+                
+                // Preparar dados para o gráfico
+                const dateLabels = [];
+                const weightData = [];
+                const truckCountData = [];
+                
+                // Criar um mapa de datas para agrupar os dados
+                const dateMap = new Map();
+                
+                // Inicializar o mapa com todas as datas no período
+                for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
+                    const dateStr = d.toISOString().split('T')[0];
+                    dateLabels.push(formatDate(dateStr));
+                    dateMap.set(dateStr, { weight: 0, trucks: new Set() });
+                }
+                
+                // Preencher o mapa com os dados reais
+                historyData.forEach(item => {
+                    const dateStr = new Date(item.date).toISOString().split('T')[0];
+                    if (dateMap.has(dateStr)) {
+                        const data = dateMap.get(dateStr);
+                        data.weight += item.weight;
+                        data.trucks.add(item.truck);
+                    }
+                });
+                
+                // Converter o mapa em arrays para o gráfico
+                dateLabels.forEach(label => {
+                    const originalDate = label.split('/').reverse().join('-');
+                    const data = dateMap.get(originalDate);
+                    if (data) {
+                        weightData.push(Math.round(data.weight));
+                        truckCountData.push(data.trucks.size);
+                    } else {
+                        weightData.push(0);
+                        truckCountData.push(0);
+                    }
+                });
+                
+                // Atualizar estatísticas
+                updateHistoryStats(historyData);
+                
+                // Criar ou atualizar o gráfico
+                const ctx = document.getElementById('historyChart').getContext('2d');
+                
+                if (historyChart) {
+                    historyChart.data.labels = dateLabels;
+                    historyChart.data.datasets[0].data = weightData;
+                    historyChart.data.datasets[1].data = truckCountData;
+                    historyChart.update();
+                } else {
+                    historyChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: dateLabels,
+                            datasets: [
+                                {
+                                    label: 'Quilos',
+                                    data: weightData,
+                                    backgroundColor: 'rgba(124, 58, 237, 0.7)',
+                                    borderColor: 'rgba(124, 58, 237, 1)',
+                                    borderWidth: 1,
+                                    yAxisID: 'y'
+                                },
+                                {
+                                    label: 'Caminhões',
+                                    data: truckCountData,
+                                    type: 'line',
+                                    backgroundColor: 'rgba(8, 145, 178, 0.2)',
+                                    borderColor: 'rgba(8, 145, 178, 1)',
+                                    borderWidth: 2,
+                                    pointBackgroundColor: 'rgba(8, 145, 178, 1)',
+                                    pointRadius: 4,
+                                    fill: false,
+                                    tension: 0.1,
+                                    yAxisID: 'y1'
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    position: 'left',
+                                    title: {
+                                        display: true,
+                                        text: 'Quilos'
+                                    }
+                                },
+                                y1: {
+                                    beginAtZero: true,
+                                    position: 'right',
+                                    title: {
+                                        display: true,
+                                        text: 'Caminhões'
+                                    },
+                                    grid: {
+                                        drawOnChartArea: false
+                                    },
+                                    ticks: {
+                                        stepSize: 1
+                                    }
+                                }
+                            },
+                            plugins: {
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            let label = context.dataset.label || '';
+                                            if (label) {
+                                                label += ': ';
+                                            }
+                                            if (context.datasetIndex === 0) {
+                                                label += context.parsed.y + ' kg';
+                                            } else {
+                                                label += context.parsed.y + (context.parsed.y === 1 ? ' caminhão' : ' caminhões');
+                                            }
+                                            return label;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Erro ao atualizar gráfico:', error);
+            }
+        }
+        
+        function updateHistoryStats(historyData) {
+            const totalKilos = historyData.reduce((sum, item) => sum + item.weight, 0);
+            
+            // Contar caminhões únicos
+            const uniqueTrucks = new Set();
+            historyData.forEach(item => uniqueTrucks.add(item.truck));
+            const totalTrucks = uniqueTrucks.size;
+            
+            // Calcular médias por dia
+            const days = document.getElementById('periodFilter').value;
+            const avgKilosPerDay = days > 0 ? totalKilos / days : 0;
+            const avgTrucksPerDay = days > 0 ? totalTrucks / days : 0;
+            
+            // Atualizar elementos na interface
+            document.getElementById('totalKilos').textContent = Math.round(totalKilos);
+            document.getElementById('totalTrucks').textContent = totalTrucks;
+            document.getElementById('avgKilosPerDay').textContent = Math.round(avgKilosPerDay);
+            document.getElementById('avgTrucksPerDay').textContent = avgTrucksPerDay.toFixed(1);
+        }
+        
+        function formatDate(dateStr) {
+            const parts = dateStr.split('-');
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+        
+        
+function shareHistory() {
+    try {
+        const history = JSON.parse(localStorage.getItem('aguaDuraHistory')) || [];
+        if (history.length === 0) {
+            alert('O histórico está vazio!');
+            return;
+        }
+
+        let message = '*HISTÓRICO DE ENTREGAS - ÁGUA DURA*\n\n';
+        let total = 0;
+
+        history.forEach((item, i) => {
+            const data = new Date(item.date);
+            const dia = data.toLocaleDateString('pt-BR');
+            message += `*${i + 1}.* ${dia} - ${item.truck} - ${Math.round(item.weight)} kg\n`;
+            total += item.weight;
+        });
+
+        message += `\n*Total:* ${Math.round(total)} kg`;
+
+        const encoded = encodeURIComponent(message);
+        window.open(`https://wa.me/?text=${encoded}`, '_blank');
+    } catch (e) {
+        alert('Erro ao compartilhar histórico!');
+        console.error(e);
+    }
+}
+
+
+// --- Função para zerar o histórico ---
+        function resetHistory() {
+            if (confirm('Tem certeza que deseja zerar todo o histórico? Esta ação não pode ser desfeita.')) {
+                // Confirmação adicional para evitar exclusões acidentais
+                if (confirm('ATENÇÃO: Todos os dados do histórico serão perdidos permanentemente. Confirma a exclusão?')) {
+                    try {
+                        // Remover dados do histórico do localStorage
+                        localStorage.removeItem(localStorageKeyHistory);
+                        
+                        // Atualizar o gráfico e estatísticas
+                        updateHistoryChart();
+                        
+                        alert('Histórico zerado com sucesso!');
+                    } catch (error) {
+                        console.error('Erro ao zerar histórico:', error);
+                        alert('Ocorreu um erro ao tentar zerar o histórico. Por favor, tente novamente.');
+                    }
+                }
+            }
+        }
+
+        // --- Snow Effect ---
+        function createSnowflakes() {
+            const snowContainer = document.getElementById('snowContainer');
+            const snowSymbols = ['❄', '❅', '❆', '✦', '✧', '✩', '✪', '*'];
+            
+            function createSnowflake() {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.innerHTML = snowSymbols[Math.floor(Math.random() * snowSymbols.length)];
+                snowflake.style.left = Math.random() * 100 + '%';
+                snowflake.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                snowflake.style.fontSize = (Math.random() * 10 + 10) + 'px';
+                snowContainer.appendChild(snowflake);
+                
+                setTimeout(() => {
+                    snowflake.remove();
+                }, 5000);
+            }
+            
+            setInterval(createSnowflake, 300);
+        }
+
+        // --- Tab Navigation ---
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remover classe active de todas as abas
+                    tabs.forEach(t => t.classList.remove('active'));
+                    
+                    // Adicionar classe active na aba clicada
+                    tab.classList.add('active');
+                    
+                    // Esconder todos os conteúdos
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Mostrar o conteúdo correspondente
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(`${tabId}-content`).classList.add('active');
+                    
+                    // Se a aba for histórico, atualizar o gráfico
+                    if (tabId === 'historico') {
+                        updateHistoryChart();
+                    }
+                });
+            });
+        }
+
+        // --- Initialization ---
+        window.onload = function() {
+            createSnowflakes();
+            setupTabs();
+            
+            // Load saved data
+            loadSavedItems(localStorageKeyTrucks, savedTrucks, updateTruckSelectUI);
+            loadSavedItems(localStorageKeyDrivers, savedDrivers, updateDriverSelectUI);
+            loadSavedItems(localStorageKeyRoutes, savedRoutes, updateRouteSelectUI);
+
+            // Setup interactions for Trucks
+            setupToggle(newTruckToggle, truckSelect, truckInput, deleteTruckBtn, (flag) => isNewTruckMode = flag, () => isNewTruckMode);
+            setupInputBlur(truckInput, saveTruckNameUI);
+            setupSelectChange(truckSelect, deleteTruckBtn);
+            setupDeleteButton(deleteTruckBtn, truckSelect, deleteTruckNameUI);
+
+            // Setup interactions for Routes
+            setupToggle(newRouteToggle, routeSelect, routeInput, deleteRouteBtn, (flag) => isNewRouteMode = flag, () => isNewRouteMode);
+            setupInputBlur(routeInput, saveRouteNameUI);
+            setupSelectChange(routeSelect, deleteRouteBtn);
+            setupDeleteButton(deleteRouteBtn, routeSelect, deleteRouteNameUI);
+
+            // Setup interactions for Drivers
+            setupToggle(newDriverToggle, driverSelect, driverInput, deleteDriverBtn, (flag) => isNewDriverMode = flag, () => isNewDriverMode);
+            setupInputBlur(driverInput, saveDriverNameUI);
+            setupSelectChange(driverSelect, deleteDriverBtn);
+            setupDeleteButton(deleteDriverBtn, driverSelect, deleteDriverNameUI);
+
+            // Setup history filters
+            document.getElementById('periodFilter').addEventListener('change', updateHistoryChart);
+            document.getElementById('truckFilter').addEventListener('change', updateHistoryChart);
+            
+            // Setup reset history button
+            document.getElementById('shareHistoryBtn').addEventListener('click', shareHistory);
+            document.getElementById('resetHistoryBtn').addEventListener('click', resetHistory);
+
+            // Initial cart display
+            updateCartDisplay();
+            
+            // Gerar dados de exemplo para o histórico se não existirem
+            generateSampleHistoryData();
+        }
+        
+        
+    </script>
+
+<script>
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const currentMode = localStorage.getItem('darkMode');
+
+    if (currentMode === 'enabled') {
+        document.body.classList.add('dark-mode');
+        darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+    }
+
+    darkModeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        if (document.body.classList.contains('dark-mode')) {
+            localStorage.setItem('darkMode', 'enabled');
+            darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        } else {
+            localStorage.setItem('darkMode', 'disabled');
+            darkModeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+        }
+    });
+</script>
+
+</body>
+</html>
